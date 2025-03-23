@@ -15,6 +15,7 @@
 package protovalidate
 
 import (
+	"github.com/google/cel-go/cel"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
@@ -78,6 +79,10 @@ func WithAllowUnknownFields() ValidatorOption {
 	return &allowUnknownFieldsOption{}
 }
 
+func WithExtraCelEnvOptions(opts ...cel.EnvOption) ValidatorOption {
+	return &extraCelEnvOptionsOption{opts}
+}
+
 // A ValidationOption specifies per-validation configuration. See the individual
 // options for their defaults and effects.
 type ValidationOption interface {
@@ -130,6 +135,14 @@ type allowUnknownFieldsOption struct{}
 
 func (o *allowUnknownFieldsOption) applyToValidator(cfg *config) {
 	cfg.allowUnknownFields = true
+}
+
+type extraCelEnvOptionsOption struct {
+	opts []cel.EnvOption
+}
+
+func (o *extraCelEnvOptionsOption) applyToValidator(cfg *config) {
+	cfg.celExtraOptions = o.opts
 }
 
 type filterOption struct{ filter Filter }
